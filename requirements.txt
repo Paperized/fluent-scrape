@@ -1,0 +1,5 @@
+cloudscraper
+selenium
+selenium-wire
+deepmerge
+lxml
