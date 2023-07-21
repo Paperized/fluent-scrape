@@ -9,7 +9,21 @@ from multiprocessing.pool import ThreadPool
 from . import XValueConverter
 
 
-def xmerge(*x_scraper: 'XScraper') -> dict[str, Any]:
+def xmerge_list(*x_scraper: 'XScraper') -> dict[str, Any]:
+    pool = ThreadPool(processes=len(x_scraper))
+
+    result: dict[str, Any] = {}
+    start = time.perf_counter()
+    scraper_results = pool.map(lambda s: s.get_results(), x_scraper)
+    for curr_res in scraper_results:
+        result = always_merger.merge(result, curr_res)
+    end = time.perf_counter()
+    print(f"scrapers execution and merge took {end - start:0.4f} seconds")
+    return result
+
+
+def xmerge_fixed(scraper_maker: Callable[[], 'XScraper'], scraper_number: int) -> dict[str, Any]:
+    x_scraper = [scraper_maker() for _ in range(scraper_number)]
     pool = ThreadPool(processes=len(x_scraper))
 
     result: dict[str, Any] = {}
